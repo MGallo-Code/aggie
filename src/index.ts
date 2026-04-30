@@ -1,5 +1,10 @@
+import { readConfig, setUser } from "./config.js";
+
 function main() {
-  console.log("Hello, world!");
+  // Set current user to "Michael", update config file on disk
+  setUser("Michael");
+  // read config file and print
+  console.log(readConfig());
 }
 
 main();
