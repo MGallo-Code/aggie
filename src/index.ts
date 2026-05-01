@@ -1,10 +1,28 @@
-import { readConfig, setUser } from "./config.js";
+import {
+  CommandsRegistry,
+  handlerLogin,
+  registerCommand,
+  runCommand,
+} from "./commands.js";
 
 function main() {
-  // Set current user to "Michael", update config file on disk
-  setUser("Michael");
-  // read config file and print
-  console.log(readConfig());
+  // Create command registry -- register commands
+  const registry: CommandsRegistry = {};
+  registerCommand(registry, "login", handlerLogin);
+
+  // Get script args
+  // Don't include path/script args
+  const [cmdName, ...args] = process.argv.slice(2);
+  if (!cmdName) {
+    console.log("Not enough arguments provided!");
+    process.exit(1);
+  }
+  try {
+    runCommand(registry, cmdName, ...args);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
 }
 
 main();
