@@ -1,3 +1,4 @@
+import { register } from "node:module";
 import {
   CommandsRegistry,
   registerCommand,
@@ -5,6 +6,7 @@ import {
 } from "./commands/commands";
 import { handlerReset } from "./commands/reset";
 import { handlerLogin, handlerRegister, handlerUsers } from "./commands/users";
+import { handlerAgg } from "./commands/feed";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -22,6 +24,7 @@ async function main() {
   registerCommand(commandsRegistry, "register", handlerRegister);
   registerCommand(commandsRegistry, "reset", handlerReset);
   registerCommand(commandsRegistry, "users", handlerUsers);
+  registerCommand(commandsRegistry, "agg", handlerAgg);
 
   try {
     await runCommand(commandsRegistry, cmdName, ...cmdArgs);
