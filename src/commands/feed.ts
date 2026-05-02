@@ -7,19 +7,59 @@ import {
   getFeedFollowsForUser,
   listFeeds,
 } from "../lib/db/queries/feed";
-import { getUser } from "../lib/db/queries/users";
 import { Feed, User } from "../lib/db/schema";
-import { fetchFeed } from "../lib/rss";
+import { scrapeFeeds } from "../lib/rss";
 
 export async function handlerAgg(cmdName: string, ...args: string[]) {
-  // if (args.length != 1) {
-  //   throw new Error(`usage: ${cmdName} <feedURL>`);
-  // }
+  if (args.length != 1) {
+    throw new Error(`usage: ${cmdName} <time_between_reqs>`);
+  }
 
-  // const feedURL = args[0];
-  const feedURL = "https://www.wagslane.dev/index.xml";
-  const feed = await fetchFeed(feedURL);
-  console.log(JSON.stringify(feed));
+  const timeBetweenRequests = parseDuration(args[0]);
+  console.log(`Collecting feeds every ${args[0]}`);
+
+  const handleError = (err: any) => {
+    console.error(
+      `Error scraping feeds: ${err instanceof Error ? err.message : err}`,
+    );
+  };
+  scrapeFeeds().catch(handleError);
+
+  const interval = setInterval(() => {
+    scrapeFeeds().catch(handleError);
+  }, timeBetweenRequests);
+
+  await new Promise<void>((resolve) => {
+    process.on("SIGINT", () => {
+      console.log("Shutting down feed aggregator...");
+      clearInterval(interval);
+      resolve();
+    });
+  });
+}
+
+function parseDuration(durationStr: string): number {
+  const regex = /^(\d+)(ms|s|m|h)$/;
+  const match = durationStr.match(regex);
+  if (!match) {
+    throw new Error(`Invalid duration! Valid Examples: 1s | 9m | 3h`);
+  }
+
+  const [durStr, durNum, durUnit] = match;
+  const durationInt = parseInt(durNum);
+  console.log(`Collecting feeds every ${durStr}`);
+  switch (durUnit) {
+    case "ms":
+      return durationInt;
+    case "s":
+      return durationInt * 1000;
+    case "m":
+      return durationInt * 60 * 1000;
+    case "h":
+      return durationInt * 60 * 60 * 1000;
+    default:
+      throw new Error(`Invalid duration! Valid Examples: 1s | 9m | 3h`);
+  }
 }
 
 export async function handlerAddFeed(
