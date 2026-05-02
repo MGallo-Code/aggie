@@ -3,7 +3,12 @@ import { db } from "..";
 import { feedFollows, feeds, users } from "../schema";
 
 export async function createFeedFollow(userId: string, feedId: string) {
-  await db.insert(feedFollows).values({ userId, feedId }).returning();
+  const result = await db
+    .insert(feedFollows)
+    .values({ userId, feedId })
+    .onConflictDoNothing()
+    .returning();
+  return result.length > 0;
 }
 
 export async function deleteFeedFollow(userId: string, feedId: string) {

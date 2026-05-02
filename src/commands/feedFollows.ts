@@ -22,8 +22,12 @@ export async function handlerFollow(
     throw new Error(`Error finding feed with url "${feedURL}" in db`);
   }
 
-  await createFeedFollow(user.id, feed.id);
-  console.log(`User ${user.name} followed feed: ${feed.name}`);
+  const created = await createFeedFollow(user.id, feed.id);
+  if (!created) {
+    console.log(dim(`${user.name} already follows ${feed.name}.`));
+    return;
+  }
+  console.log(`${user.name} now follows ${feed.name}.`);
 }
 
 export async function handlerUnfollow(
