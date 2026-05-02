@@ -12,9 +12,11 @@ export async function createFeedFollow(userId: string, feedId: string) {
 }
 
 export async function deleteFeedFollow(userId: string, feedId: string) {
-  await db
+  const result = await db
     .delete(feedFollows)
-    .where(and(eq(feedFollows.userId, userId), eq(feedFollows.feedId, feedId)));
+    .where(and(eq(feedFollows.userId, userId), eq(feedFollows.feedId, feedId)))
+    .returning();
+  return result.length > 0;
 }
 
 export async function getFeedFollowsForUser(userId: string) {

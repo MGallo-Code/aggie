@@ -45,8 +45,12 @@ export async function handlerUnfollow(
     throw new Error(`Error finding feed with url "${feedURL}" in db`);
   }
 
-  await deleteFeedFollow(user.id, feed.id);
-  console.log(`User ${user.name} unfollowed feed: ${feed.name}`);
+  const deleted = await deleteFeedFollow(user.id, feed.id);
+  if (!deleted) {
+    console.log(dim(`${user.name} doesn't follow ${feed.name}.`));
+    return;
+  }
+  console.log(`${user.name} unfollowed ${feed.name}.`);
 }
 
 export async function handlerFollowing(
