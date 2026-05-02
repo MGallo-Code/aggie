@@ -19,7 +19,7 @@ export type RSSItem = {
 export async function fetchFeed(feedURL: string) {
   const res = await fetch(feedURL, {
     headers: {
-      "User-Agent": "gator",
+      "User-Agent": "aggie",
       accept: "application/rss+xml",
     },
   });

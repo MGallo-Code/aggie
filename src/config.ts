@@ -10,7 +10,7 @@ export type Config = {
 export function readConfig(): Config {
   const fullPath = getConfigFilePath();
 
-  // Read JSON file at ~/.gatorconfig.json
+  // Read JSON file at ~/.aggieconfig.json
   const data = fs.readFileSync(fullPath, "utf8");
   const rawConfig = JSON.parse(data);
 
@@ -27,7 +27,7 @@ export function setUser(userName: string) {
 }
 
 function getConfigFilePath(): string {
-  return path.join(os.homedir(), ".gatorconfig.json");
+  return path.join(os.homedir(), ".aggieconfig.json");
 }
 
 function writeConfig(cfg: Config): void {
