@@ -1,5 +1,6 @@
 import { getPostsForUser } from "../lib/db/queries/posts";
 import { Post, User } from "../lib/db/schema";
+import { bold, dim, divider, formatDate } from "../lib/ui";
 
 export async function handlerBrowse(
   cmdName: string,
@@ -15,23 +16,25 @@ export async function handlerBrowse(
   }
 
   const posts = await getPostsForUser(user.id, limit);
-  if (!posts) {
+  if (posts.length === 0) {
     console.log("No posts found!");
+    return;
   }
 
+  console.log("");
   for (const post of posts) {
     printPost(post);
   }
 }
 
 function printPost(post: Post) {
-  console.log(`* Title:         
-  ${post.title ?? "(no title)"}`);
-  console.log(`* URL:           
-  ${post.url}`);
-  console.log(`* Published:     
-  ${post.publishedAt ?? "(unknown)"}`);
-  console.log(`* Description:      
-  ${post.description ?? "(none)"}`);
+  console.log(bold(post.title ?? "(no title)"));
+  console.log(dim(post.url));
+  console.log(dim(`Published ${formatDate(post.publishedAt)}`));
+  if (post.description) {
+    console.log("");
+    console.log(post.description);
+  }
+  console.log(divider());
   console.log("");
 }

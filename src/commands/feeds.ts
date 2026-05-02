@@ -8,6 +8,7 @@ import { createFeedFollow } from "../lib/db/queries/feedFollows";
 import { Feed, NewPost, User } from "../lib/db/schema";
 import { fetchFeed } from "../lib/rss";
 import { createPost } from "../lib/db/queries/posts";
+import { bold, dim, formatDate } from "../lib/ui";
 
 export async function handlerAgg(cmdName: string, ...args: string[]) {
   if (args.length != 1) {
@@ -51,6 +52,7 @@ async function scrapeFeeds() {
     return;
   }
 
+  console.log(dim(`[${formatDate(new Date())}] ${nextFeed.name}`));
   for (const item of feed.channel.item) {
     const post: NewPost = {
       title: item.title,
@@ -60,7 +62,7 @@ async function scrapeFeeds() {
       feedId: nextFeed.id,
     };
     await createPost(post);
-    console.log(`* ${item.title}`);
+    console.log(`  ${item.title}`);
   }
 }
 
@@ -104,11 +106,12 @@ export async function handlerAddFeed(
     throw new Error(`Failed to create feed`);
   }
 
-  console.log("Feed created successfully:");
+  console.log("");
+  console.log("Feed created:");
   printFeed(feed, user);
-
   await createFeedFollow(user.id, feed.id);
-  console.log(`User ${user.name} followed feed: ${feed.name}`);
+  console.log("");
+  console.log(dim(`${user.name} now follows ${feed.name}.`));
 }
 
 export async function handlerFeeds(cmdName: string, ...args: string[]) {
@@ -117,20 +120,22 @@ export async function handlerFeeds(cmdName: string, ...args: string[]) {
     console.log("No feeds!");
     return;
   }
+  console.log("");
   for (const feed of feeds) {
     if (!feed.name || !feed.url || !feed.userName) {
-      console.log("- Malformed feed data...");
-    } else {
-      console.log(`- ${feed.name} - ${feed.url} | ${feed.userName}`);
+      console.log(dim("(malformed feed entry)"));
+      console.log("");
+      continue;
     }
+    console.log(bold(feed.name));
+    console.log(dim(feed.url));
+    console.log(dim(`added by ${feed.userName}`));
+    console.log("");
   }
 }
 
 function printFeed(feed: Feed, user: User) {
-  console.log(`* ID:            ${feed.id}`);
-  console.log(`* Created:       ${feed.createdAt}`);
-  console.log(`* Updated:       ${feed.updatedAt}`);
-  console.log(`* name:          ${feed.name}`);
-  console.log(`* URL:           ${feed.url}`);
-  console.log(`* User:          ${user.name}`);
+  console.log(bold(feed.name));
+  console.log(dim(feed.url));
+  console.log(dim(`added by ${user.name} on ${formatDate(feed.createdAt)}`));
 }

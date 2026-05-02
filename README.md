@@ -1,4 +1,4 @@
-# aggie
+# aggie(gator)
 
 A small command-line RSS aggregator written in TypeScript. It stores feeds, follows, and posts in Postgres, and includes a long-running aggregator that polls subscribed feeds on an interval. Users register locally, follow feeds, and browse the latest posts pulled in by the aggregator.
 

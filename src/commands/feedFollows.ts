@@ -5,6 +5,7 @@ import {
 } from "../lib/db/queries/feedFollows";
 import { getFeedByUrl } from "../lib/db/queries/feeds";
 import { User } from "../lib/db/schema";
+import { bold, dim } from "../lib/ui";
 
 export async function handlerFollow(
   cmdName: string,
@@ -49,13 +50,19 @@ export async function handlerFollowing(
   user: User,
   ...args: string[]
 ) {
-  console.log(`Feeds followed by ${user.name}:`);
   const followedFeeds = await getFeedFollowsForUser(user.id);
   if (followedFeeds.length === 0) {
-    console.log("  No feeds followed!");
+    console.log(`${user.name} doesn't follow any feeds yet.`);
     return;
   }
+  console.log("");
+  console.log(bold(`Feeds followed by ${user.name}:`));
+  console.log("");
   for (const followFeed of followedFeeds) {
-    console.log(` - ${followFeed.feedName}`);
+    console.log(`  ${followFeed.feedName}`);
+    if (followFeed.feedUrl) {
+      console.log(`  ${dim(followFeed.feedUrl)}`);
+    }
+    console.log("");
   }
 }

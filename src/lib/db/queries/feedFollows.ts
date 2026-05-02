@@ -19,6 +19,7 @@ export async function getFeedFollowsForUser(userId: string) {
       createdAt: feedFollows.createdAt,
       updatedAt: feedFollows.updatedAt,
       feedName: feeds.name,
+      feedUrl: feeds.url,
       userName: users.name,
     })
     .from(feedFollows)
