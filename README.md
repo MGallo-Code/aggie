@@ -6,9 +6,9 @@
 ![Top language](https://img.shields.io/github/languages/top/MGallo-Code/aggie)
 ![Last commit](https://img.shields.io/github/last-commit/MGallo-Code/aggie)
 
-![demo](demo.gif)
-
 A small command-line RSS aggregator written in TypeScript. It stores feeds, follows, and posts in Postgres, and includes a long-running aggregator that polls subscribed feeds on an interval. Users register locally, follow feeds, and browse the latest posts pulled in by the aggregator.
+
+![demo](demo.gif)
 
 ## Prerequisites
 
