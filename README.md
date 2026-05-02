@@ -1,5 +1,11 @@
 # aggie(gator)
 
+![CI](https://img.shields.io/github/actions/workflow/status/MGallo-Code/aggie/ci.yml?branch=main&label=CI)
+![License](https://img.shields.io/github/license/MGallo-Code/aggie)
+![Version](https://img.shields.io/github/v/release/MGallo-Code/aggie)
+![Top language](https://img.shields.io/github/languages/top/MGallo-Code/aggie)
+![Last commit](https://img.shields.io/github/last-commit/MGallo-Code/aggie)
+
 ![demo](demo.gif)
 
 A small command-line RSS aggregator written in TypeScript. It stores feeds, follows, and posts in Postgres, and includes a long-running aggregator that polls subscribed feeds on an interval. Users register locally, follow feeds, and browse the latest posts pulled in by the aggregator.
