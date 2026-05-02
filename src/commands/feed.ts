@@ -1,5 +1,5 @@
 import { Config, readConfig } from "../config";
-import { createFeed } from "../lib/db/queries/feed";
+import { createFeed, listFeeds } from "../lib/db/queries/feed";
 import { getUser } from "../lib/db/queries/users";
 import { Feed, User } from "../lib/db/schema";
 import { fetchFeed } from "../lib/rss";
@@ -37,6 +37,23 @@ export async function handlerAddFeed(cmdName: string, ...args: string[]) {
 
   console.log("Feed created successfully:");
   printFeed(feed, user);
+}
+
+export async function handlerFeeds(cmdName: string, ...args: string[]) {
+  let feeds = await listFeeds();
+  if (!feeds) {
+    console.log("No feeds!");
+  }
+  if (!Array.isArray(feeds)) {
+    feeds = [feeds];
+  }
+  for (const feed of feeds) {
+    if (!feed.name || !feed.url || !feed.userName) {
+      console.log("- Malformed feed data...");
+    } else {
+      console.log(`- ${feed.name} - ${feed.url} | ${feed.userName}`);
+    }
+  }
 }
 
 function printFeed(feed: Feed, user: User) {
