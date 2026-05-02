@@ -1,5 +1,5 @@
 import { db } from "..";
 
 export async function reset() {
-  await db.execute("TRUNCATE TABLE users;");
+  await db.execute("TRUNCATE TABLE users, feeds, feed_follows CASCADE;");
 }

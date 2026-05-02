@@ -1,14 +1,12 @@
-import { Config, readConfig } from "../config";
 import {
   createFeed,
-  createFeedFollow,
-  deleteFeedFollow,
-  getFeedByUrl,
-  getFeedFollowsForUser,
+  getNextFeedToFetch,
   listFeeds,
-} from "../lib/db/queries/feed";
+  markFeedFetched,
+} from "../lib/db/queries/feeds";
+import { createFeedFollow } from "../lib/db/queries/feedFollows";
 import { Feed, User } from "../lib/db/schema";
-import { scrapeFeeds } from "../lib/rss";
+import { fetchFeed } from "../lib/rss";
 
 export async function handlerAgg(cmdName: string, ...args: string[]) {
   if (args.length != 1) {
@@ -38,6 +36,25 @@ export async function handlerAgg(cmdName: string, ...args: string[]) {
   });
 }
 
+async function scrapeFeeds() {
+  const nextFeed = await getNextFeedToFetch();
+  if (!nextFeed) {
+    console.log("No feeds to fetch");
+    return;
+  }
+
+  await markFeedFetched(nextFeed.id);
+  const feed = await fetchFeed(nextFeed.url);
+  if (!feed) {
+    console.log(`An error occurred fetching feed '${nextFeed.name}'`);
+    return;
+  }
+
+  for (const item of feed.channel.item) {
+    console.log(`* ${item.title}`);
+  }
+}
+
 function parseDuration(durationStr: string): number {
   const regex = /^(\d+)(ms|s|m|h)$/;
   const match = durationStr.match(regex);
@@ -45,9 +62,8 @@ function parseDuration(durationStr: string): number {
     throw new Error(`Invalid duration! Valid Examples: 1s | 9m | 3h`);
   }
 
-  const [durStr, durNum, durUnit] = match;
+  const [, durNum, durUnit] = match;
   const durationInt = parseInt(durNum);
-  console.log(`Collecting feeds every ${durStr}`);
   switch (durUnit) {
     case "ms":
       return durationInt;
@@ -87,12 +103,10 @@ export async function handlerAddFeed(
 }
 
 export async function handlerFeeds(cmdName: string, ...args: string[]) {
-  let feeds = await listFeeds();
-  if (!feeds) {
+  const feeds = await listFeeds();
+  if (feeds.length === 0) {
     console.log("No feeds!");
-  }
-  if (!Array.isArray(feeds)) {
-    feeds = [feeds];
+    return;
   }
   for (const feed of feeds) {
     if (!feed.name || !feed.url || !feed.userName) {
@@ -101,64 +115,6 @@ export async function handlerFeeds(cmdName: string, ...args: string[]) {
       console.log(`- ${feed.name} - ${feed.url} | ${feed.userName}`);
     }
   }
-}
-
-export async function handlerFollow(
-  cmdName: string,
-  user: User,
-  ...args: string[]
-) {
-  if (args.length != 1) {
-    throw new Error(`usage: ${cmdName} <url>`);
-  }
-
-  const feedURL = args[0];
-  const feed = await getFeedByUrl(feedURL);
-  if (!feed) {
-    throw new Error(`Error finding feed with url "${feedURL} in db`);
-  }
-
-  await createFeedFollow(user.id, feed.id);
-  console.log(`User ${user.name} followed feed: ${feed.name}`);
-}
-
-export async function handlerFollowing(
-  cmdName: string,
-  user: User,
-  ...args: string[]
-) {
-  console.log(`Feeds followed by ${user.name}:`);
-  let followedFeeds = await getFeedFollowsForUser(user.id);
-  if (!followedFeeds) {
-    console.log("  No feeds followed!");
-    return;
-  }
-
-  if (!Array.isArray(followedFeeds)) {
-    followedFeeds = [followedFeeds];
-  }
-  for (const followFeed of followedFeeds) {
-    console.log(` - ${followFeed.feedName}`);
-  }
-}
-
-export async function handlerUnfollow(
-  cmdName: string,
-  user: User,
-  ...args: string[]
-) {
-  if (args.length != 1) {
-    throw new Error(`usage: ${cmdName} <url>`);
-  }
-
-  const feedURL = args[0];
-  const feed = await getFeedByUrl(feedURL);
-  if (!feed) {
-    throw new Error(`Error finding feed with url "${feedURL} in db`);
-  }
-
-  await deleteFeedFollow(user.id, feed.id);
-  console.log(`User ${user.name} unfollowed feed: ${feed.name}`);
 }
 
 function printFeed(feed: Feed, user: User) {

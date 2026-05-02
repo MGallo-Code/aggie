@@ -4,8 +4,8 @@ import { users } from "../schema";
 import { firstOrUndefined } from "./utils";
 
 export async function createUser(name: string) {
-  const [result] = await db.insert(users).values({ name: name }).returning();
-  return result;
+  const result = await db.insert(users).values({ name }).returning();
+  return firstOrUndefined(result);
 }
 
 export async function getUser(name: string) {
@@ -14,10 +14,5 @@ export async function getUser(name: string) {
 }
 
 export async function getUsers() {
-  const result = await db.select().from(users);
-  return result;
-}
-
-export async function deleteUsers() {
-  await db.delete(users);
+  return await db.select().from(users);
 }

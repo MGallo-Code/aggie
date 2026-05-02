@@ -1,6 +1,6 @@
-import { and, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "..";
-import { feedFollows, feeds, users } from "../schema";
+import { feeds, users } from "../schema";
 import { firstOrUndefined } from "./utils";
 
 export async function createFeed(name: string, url: string, userId: string) {
@@ -38,30 +38,4 @@ export async function getNextFeedToFetch() {
     .orderBy(sql`${feeds.lastFetchedAt} ASC NULLS FIRST`)
     .limit(1);
   return firstOrUndefined(result);
-}
-
-export async function createFeedFollow(userId: string, feedId: string) {
-  await db.insert(feedFollows).values({ userId, feedId }).returning();
-}
-
-export async function deleteFeedFollow(userId: string, feedId: string) {
-  await db
-    .delete(feedFollows)
-    .where(and(eq(feedFollows.userId, userId), eq(feedFollows.feedId, feedId)));
-}
-
-export async function getFeedFollowsForUser(userId: string) {
-  const results = await db
-    .select({
-      id: feedFollows.id,
-      createdAt: feedFollows.createdAt,
-      updatedAt: feedFollows.updatedAt,
-      feedName: feeds.name,
-      userName: users.name,
-    })
-    .from(feedFollows)
-    .leftJoin(users, eq(feedFollows.userId, users.id))
-    .leftJoin(feeds, eq(feedFollows.feedId, feeds.id))
-    .where(eq(feedFollows.userId, userId));
-  return results;
 }

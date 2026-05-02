@@ -1,6 +1,6 @@
-import { deleteUsers } from "../lib/db/queries/users";
+import { reset } from "../lib/db/queries/reset";
 
 export async function handlerReset() {
-  await deleteUsers();
+  await reset();
   console.log("Applied db reset");
 }

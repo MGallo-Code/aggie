@@ -5,16 +5,13 @@ import {
 } from "./commands/commands";
 import { handlerReset } from "./commands/reset";
 import { handlerLogin, handlerRegister, handlerUsers } from "./commands/users";
+import { handlerAddFeed, handlerAgg, handlerFeeds } from "./commands/feeds";
 import {
-  handlerAddFeed,
-  handlerAgg,
-  handlerFeeds,
   handlerFollow,
   handlerFollowing,
   handlerUnfollow,
-} from "./commands/feed";
+} from "./commands/feedFollows";
 import { middlewareLoggedIn } from "./middleware";
-import { register } from "node:module";
 
 async function main() {
   const args = process.argv.slice(2);
