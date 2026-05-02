@@ -2,6 +2,7 @@ import { Config, readConfig } from "../config";
 import {
   createFeed,
   createFeedFollow,
+  deleteFeedFollow,
   getFeedByUrl,
   getFeedFollowsForUser,
   listFeeds,
@@ -99,6 +100,25 @@ export async function handlerFollowing(
   for (const followFeed of followedFeeds) {
     console.log(` - ${followFeed.feedName}`);
   }
+}
+
+export async function handlerUnfollow(
+  cmdName: string,
+  user: User,
+  ...args: string[]
+) {
+  if (args.length != 1) {
+    throw new Error(`usage: ${cmdName} <url>`);
+  }
+
+  const feedURL = args[0];
+  const feed = await getFeedByUrl(feedURL);
+  if (!feed) {
+    throw new Error(`Error finding feed with url "${feedURL} in db`);
+  }
+
+  await deleteFeedFollow(user.id, feed.id);
+  console.log(`User ${user.name} unfollowed feed: ${feed.name}`);
 }
 
 function printFeed(feed: Feed, user: User) {

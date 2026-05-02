@@ -11,8 +11,10 @@ import {
   handlerFeeds,
   handlerFollow,
   handlerFollowing,
+  handlerUnfollow,
 } from "./commands/feed";
 import { middlewareLoggedIn } from "./middleware";
+import { register } from "node:module";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -41,6 +43,11 @@ async function main() {
     commandsRegistry,
     "follow",
     middlewareLoggedIn(handlerFollow),
+  );
+  registerCommand(
+    commandsRegistry,
+    "unfollow",
+    middlewareLoggedIn(handlerUnfollow),
   );
   registerCommand(
     commandsRegistry,
