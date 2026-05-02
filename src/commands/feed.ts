@@ -1,5 +1,8 @@
-import { fetchFeed } from "../lib/rss/feed";
-import { RSSFeed } from "../lib/rss/types";
+import { Config, readConfig } from "../config";
+import { createFeed } from "../lib/db/queries/feed";
+import { getUser } from "../lib/db/queries/users";
+import { Feed, User } from "../lib/db/schema";
+import { fetchFeed } from "../lib/rss";
 
 export async function handlerAgg(cmdName: string, ...args: string[]) {
   // if (args.length != 1) {
@@ -8,6 +11,39 @@ export async function handlerAgg(cmdName: string, ...args: string[]) {
 
   // const feedURL = args[0];
   const feedURL = "https://www.wagslane.dev/index.xml";
-  const feed: RSSFeed = await fetchFeed(feedURL);
+  const feed = await fetchFeed(feedURL);
   console.log(JSON.stringify(feed));
+}
+
+export async function handlerAddFeed(cmdName: string, ...args: string[]) {
+  if (args.length != 2) {
+    throw new Error(`usage: ${cmdName} <feed_name> <url>`);
+  }
+
+  const config: Config = readConfig();
+  const user = await getUser(config.currentUserName);
+
+  if (!user) {
+    throw new Error(`User ${config.currentUserName} not found`);
+  }
+
+  const feedName = args[0];
+  const url = args[1];
+
+  const feed = await createFeed(feedName, url, user.id);
+  if (!feed) {
+    throw new Error(`Failed to create feed`);
+  }
+
+  console.log("Feed created successfully:");
+  printFeed(feed, user);
+}
+
+function printFeed(feed: Feed, user: User) {
+  console.log(`* ID:            ${feed.id}`);
+  console.log(`* Created:       ${feed.createdAt}`);
+  console.log(`* Updated:       ${feed.updatedAt}`);
+  console.log(`* name:          ${feed.name}`);
+  console.log(`* URL:           ${feed.url}`);
+  console.log(`* User:          ${user.name}`);
 }
