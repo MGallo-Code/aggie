@@ -5,8 +5,9 @@ import {
   markFeedFetched,
 } from "../lib/db/queries/feeds";
 import { createFeedFollow } from "../lib/db/queries/feedFollows";
-import { Feed, User } from "../lib/db/schema";
+import { Feed, NewPost, User } from "../lib/db/schema";
 import { fetchFeed } from "../lib/rss";
+import { createPost } from "../lib/db/queries/posts";
 
 export async function handlerAgg(cmdName: string, ...args: string[]) {
   if (args.length != 1) {
@@ -51,6 +52,14 @@ async function scrapeFeeds() {
   }
 
   for (const item of feed.channel.item) {
+    const post: NewPost = {
+      title: item.title,
+      description: item.description,
+      publishedAt: new Date(item.pubDate),
+      url: item.link,
+      feedId: nextFeed.id,
+    };
+    await createPost(post);
     console.log(`* ${item.title}`);
   }
 }

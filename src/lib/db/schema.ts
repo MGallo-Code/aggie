@@ -2,6 +2,8 @@ import { pgTable, timestamp, uuid, text, unique } from "drizzle-orm/pg-core";
 
 export type User = typeof users.$inferSelect;
 export type Feed = typeof feeds.$inferSelect;
+export type Post = typeof posts.$inferSelect;
+export type NewPost = typeof posts.$inferInsert;
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom().notNull(),
