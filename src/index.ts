@@ -13,13 +13,14 @@ import {
 } from "./commands/feedFollows";
 import { middlewareLoggedIn } from "./middleware";
 import { handlerBrowse } from "./commands/posts";
+import { handlerHelp } from "./commands/help";
 
 async function main() {
   const args = process.argv.slice(2);
 
   if (args.length < 1) {
-    console.log("usage: cli <command> [args...]");
-    process.exit(1);
+    await handlerHelp("help");
+    process.exit(0);
   }
 
   const cmdName = args[0];
@@ -57,6 +58,7 @@ async function main() {
     "browse",
     middlewareLoggedIn(handlerBrowse),
   );
+  registerCommand(commandsRegistry, "help", handlerHelp);
 
   try {
     await runCommand(commandsRegistry, cmdName, ...cmdArgs);
