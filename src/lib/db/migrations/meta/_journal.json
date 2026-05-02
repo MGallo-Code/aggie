@@ -15,6 +15,13 @@
       "when": 1777698104395,
       "tag": "0001_nice_speedball",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777703860114,
+      "tag": "0002_late_madame_web",
+      "breakpoints": true
     }
   ]
 }

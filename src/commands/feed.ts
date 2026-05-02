@@ -1,5 +1,11 @@
 import { Config, readConfig } from "../config";
-import { createFeed, listFeeds } from "../lib/db/queries/feed";
+import {
+  createFeed,
+  createFeedFollow,
+  getFeedByUrl,
+  getFeedFollowsForUser,
+  listFeeds,
+} from "../lib/db/queries/feed";
 import { getUser } from "../lib/db/queries/users";
 import { Feed, User } from "../lib/db/schema";
 import { fetchFeed } from "../lib/rss";
@@ -37,6 +43,9 @@ export async function handlerAddFeed(cmdName: string, ...args: string[]) {
 
   console.log("Feed created successfully:");
   printFeed(feed, user);
+
+  await createFeedFollow(user.id, feed.id);
+  console.log(`User ${user.name} followed feed: ${feed.name}`);
 }
 
 export async function handlerFeeds(cmdName: string, ...args: string[]) {
@@ -53,6 +62,50 @@ export async function handlerFeeds(cmdName: string, ...args: string[]) {
     } else {
       console.log(`- ${feed.name} - ${feed.url} | ${feed.userName}`);
     }
+  }
+}
+
+export async function handlerFollow(cmdName: string, ...args: string[]) {
+  if (args.length != 1) {
+    throw new Error(`usage: ${cmdName} <url>`);
+  }
+
+  const config: Config = readConfig();
+  const user = await getUser(config.currentUserName);
+
+  if (!user) {
+    throw new Error(`User ${config.currentUserName} not found`);
+  }
+
+  const feed = await getFeedByUrl(args[0]);
+  if (!feed) {
+    throw new Error(`Error finding feed with url "${args[0]} in db`);
+  }
+
+  await createFeedFollow(user.id, feed.id);
+  console.log(`User ${user.name} followed feed: ${feed.name}`);
+}
+
+export async function handlerFollowing(cmdName: string, ...args: string[]) {
+  const config: Config = readConfig();
+  const user = await getUser(config.currentUserName);
+
+  if (!user) {
+    throw new Error(`User ${config.currentUserName} not found`);
+  }
+
+  console.log(`Feeds followed by ${user.name}:`);
+  let followedFeeds = await getFeedFollowsForUser(user.id);
+  if (!followedFeeds) {
+    console.log("  No feeds followed!");
+    return;
+  }
+
+  if (!Array.isArray(followedFeeds)) {
+    followedFeeds = [followedFeeds];
+  }
+  for (const followFeed of followedFeeds) {
+    console.log(` - ${followFeed.feedName}`);
   }
 }
 

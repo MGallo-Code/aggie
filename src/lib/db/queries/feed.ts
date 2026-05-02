@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "..";
-import { feeds, users } from "../schema";
+import { feedFollows, feeds, users } from "../schema";
 import { firstOrUndefined } from "./utils";
 
 export async function createFeed(name: string, url: string, userId: string) {
@@ -17,4 +17,29 @@ export async function listFeeds() {
     .from(feeds)
     .leftJoin(users, eq(feeds.userId, users.id));
   return result;
+}
+
+export async function getFeedByUrl(url: string) {
+  const result = await db.select().from(feeds).where(eq(feeds.url, url));
+  return firstOrUndefined(result);
+}
+
+export async function createFeedFollow(userId: string, feedId: string) {
+  await db.insert(feedFollows).values({ userId, feedId }).returning();
+}
+
+export async function getFeedFollowsForUser(userId: string) {
+  const results = await db
+    .select({
+      id: feedFollows.id,
+      createdAt: feedFollows.createdAt,
+      updatedAt: feedFollows.updatedAt,
+      feedName: feeds.name,
+      userName: users.name,
+    })
+    .from(feedFollows)
+    .leftJoin(users, eq(feedFollows.userId, users.id))
+    .leftJoin(feeds, eq(feedFollows.feedId, feeds.id))
+    .where(eq(feedFollows.userId, userId));
+  return results;
 }
