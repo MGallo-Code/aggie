@@ -8,7 +8,7 @@ import { createFeedFollow } from "../lib/db/queries/feedFollows";
 import { Feed, NewPost, User } from "../lib/db/schema";
 import { fetchFeed } from "../lib/rss";
 import { createPost } from "../lib/db/queries/posts";
-import { bold, dim, formatDate } from "../lib/ui";
+import { bold, dim, formatDate, green, red } from "../lib/ui";
 
 export async function handlerAgg(cmdName: string, ...args: string[]) {
   if (args.length != 1) {
@@ -19,9 +19,8 @@ export async function handlerAgg(cmdName: string, ...args: string[]) {
   console.log(`Collecting feeds every ${args[0]}`);
 
   const handleError = (err: any) => {
-    console.error(
-      `Error scraping feeds: ${err instanceof Error ? err.message : err}`,
-    );
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(red(`Error scraping feeds: ${message}`));
   };
   scrapeFeeds().catch(handleError);
 
@@ -107,7 +106,7 @@ export async function handlerAddFeed(
   }
 
   console.log("");
-  console.log("Feed created:");
+  console.log(green("Feed created:"));
   printFeed(feed, user);
   await createFeedFollow(user.id, feed.id);
   console.log("");

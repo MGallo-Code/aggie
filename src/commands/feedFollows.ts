@@ -5,7 +5,7 @@ import {
 } from "../lib/db/queries/feedFollows";
 import { getFeedByUrl } from "../lib/db/queries/feeds";
 import { User } from "../lib/db/schema";
-import { bold, dim } from "../lib/ui";
+import { bold, dim, green } from "../lib/ui";
 
 export async function handlerFollow(
   cmdName: string,
@@ -27,7 +27,7 @@ export async function handlerFollow(
     console.log(dim(`${user.name} already follows ${feed.name}.`));
     return;
   }
-  console.log(`${user.name} now follows ${feed.name}.`);
+  console.log(green(`${user.name} now follows ${feed.name}.`));
 }
 
 export async function handlerUnfollow(
@@ -50,7 +50,7 @@ export async function handlerUnfollow(
     console.log(dim(`${user.name} doesn't follow ${feed.name}.`));
     return;
   }
-  console.log(`${user.name} unfollowed ${feed.name}.`);
+  console.log(green(`${user.name} unfollowed ${feed.name}.`));
 }
 
 export async function handlerFollowing(

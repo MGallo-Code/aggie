@@ -14,6 +14,7 @@ import {
 import { middlewareLoggedIn } from "./middleware";
 import { handlerBrowse } from "./commands/posts";
 import { handlerHelp } from "./commands/help";
+import { red } from "./lib/ui";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -63,11 +64,8 @@ async function main() {
   try {
     await runCommand(commandsRegistry, cmdName, ...cmdArgs);
   } catch (err) {
-    if (err instanceof Error) {
-      console.error(`Error running command ${cmdName}: ${err.message}`);
-    } else {
-      console.error(`Error running command ${cmdName}: ${err}`);
-    }
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(red(`Error running command ${cmdName}: ${message}`));
     process.exit(1);
   }
   process.exit(0);

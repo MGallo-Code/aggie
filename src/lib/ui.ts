@@ -5,6 +5,7 @@ const codes = {
   dim: "\x1b[2m",
   cyan: "\x1b[36m",
   green: "\x1b[32m",
+  red: "\x1b[31m",
   reset: "\x1b[0m",
 };
 
@@ -27,6 +28,10 @@ export function cyan(s: string): string {
 
 export function green(s: string): string {
   return wrap(codes.green, s);
+}
+
+export function red(s: string): string {
+  return wrap(codes.red, s);
 }
 
 export function divider(width: number = 60): string {
