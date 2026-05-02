@@ -85,8 +85,30 @@ export async function fetchFeed(feedURL: string) {
   } as RSSFeed;
 }
 
+const namedEntities: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+};
+
+function decodeEntities(s: string): string {
+  return s.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, code) => {
+    if (code[0] === "#") {
+      const cp =
+        code[1] === "x" || code[1] === "X"
+          ? parseInt(code.slice(2), 16)
+          : parseInt(code.slice(1), 10);
+      return Number.isFinite(cp) ? String.fromCodePoint(cp) : match;
+    }
+    return namedEntities[code.toLowerCase()] ?? match;
+  });
+}
+
 function cleanText(s: string): string {
-  return s
+  return decodeEntities(s)
     .replace(/<\/?(p|br|div|h\d)[^>]*>/gi, "\n")
     .replace(/<[^>]*>/g, "")
     .replace(/[ \t]+/g, " ")
