@@ -4,7 +4,11 @@ import { users } from "../schema";
 import { firstOrUndefined } from "./utils";
 
 export async function createUser(name: string) {
-  const result = await db.insert(users).values({ name }).returning();
+  const result = await db
+    .insert(users)
+    .values({ name })
+    .onConflictDoNothing()
+    .returning();
   return firstOrUndefined(result);
 }
 

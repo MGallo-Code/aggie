@@ -1,6 +1,6 @@
 import { readConfig, setUser } from "../config";
 import { createUser, getUser, getUsers } from "../lib/db/queries/users";
-import { green } from "../lib/ui";
+import { dim, green } from "../lib/ui";
 
 export async function handlerLogin(cmdName: string, ...args: string[]) {
   if (args.length !== 1) {
@@ -25,7 +25,8 @@ export async function handlerRegister(cmdName: string, ...args: string[]) {
   const userName = args[0];
   const user = await createUser(userName);
   if (!user) {
-    throw new Error(`User ${userName} not found`);
+    console.log(dim(`User ${userName} already exists.`));
+    return;
   }
 
   setUser(user.name);
