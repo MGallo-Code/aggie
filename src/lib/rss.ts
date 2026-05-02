@@ -29,9 +29,7 @@ export async function fetchFeed(feedURL: string) {
 
   // Parse XML
   const xml = await res.text();
-  const parser = new XMLParser({
-    processEntities: false,
-  });
+  const parser = new XMLParser();
   const result = parser.parse(xml);
 
   // Validate response to fit types above^^
@@ -69,9 +67,9 @@ export async function fetchFeed(feedURL: string) {
       typeof item.pubDate === "string"
     ) {
       items.push({
-        title: item.title,
+        title: cleanText(item.title),
         link: item.link,
-        description: item.description,
+        description: cleanText(item.description),
         pubDate: item.pubDate,
       });
     }
@@ -79,10 +77,21 @@ export async function fetchFeed(feedURL: string) {
 
   return {
     channel: {
-      title: channel.title,
+      title: cleanText(channel.title),
       link: channel.link,
-      description: channel.description,
+      description: cleanText(channel.description),
       item: items,
     },
   } as RSSFeed;
+}
+
+function cleanText(s: string): string {
+  return s
+    .replace(/<\/?(p|br|div|h\d)[^>]*>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n[ \t]+/g, "\n")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
