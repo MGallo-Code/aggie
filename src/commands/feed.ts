@@ -21,16 +21,13 @@ export async function handlerAgg(cmdName: string, ...args: string[]) {
   console.log(JSON.stringify(feed));
 }
 
-export async function handlerAddFeed(cmdName: string, ...args: string[]) {
+export async function handlerAddFeed(
+  cmdName: string,
+  user: User,
+  ...args: string[]
+) {
   if (args.length != 2) {
     throw new Error(`usage: ${cmdName} <feed_name> <url>`);
-  }
-
-  const config: Config = readConfig();
-  const user = await getUser(config.currentUserName);
-
-  if (!user) {
-    throw new Error(`User ${config.currentUserName} not found`);
   }
 
   const feedName = args[0];
@@ -65,35 +62,30 @@ export async function handlerFeeds(cmdName: string, ...args: string[]) {
   }
 }
 
-export async function handlerFollow(cmdName: string, ...args: string[]) {
+export async function handlerFollow(
+  cmdName: string,
+  user: User,
+  ...args: string[]
+) {
   if (args.length != 1) {
     throw new Error(`usage: ${cmdName} <url>`);
   }
 
-  const config: Config = readConfig();
-  const user = await getUser(config.currentUserName);
-
-  if (!user) {
-    throw new Error(`User ${config.currentUserName} not found`);
-  }
-
-  const feed = await getFeedByUrl(args[0]);
+  const feedURL = args[0];
+  const feed = await getFeedByUrl(feedURL);
   if (!feed) {
-    throw new Error(`Error finding feed with url "${args[0]} in db`);
+    throw new Error(`Error finding feed with url "${feedURL} in db`);
   }
 
   await createFeedFollow(user.id, feed.id);
   console.log(`User ${user.name} followed feed: ${feed.name}`);
 }
 
-export async function handlerFollowing(cmdName: string, ...args: string[]) {
-  const config: Config = readConfig();
-  const user = await getUser(config.currentUserName);
-
-  if (!user) {
-    throw new Error(`User ${config.currentUserName} not found`);
-  }
-
+export async function handlerFollowing(
+  cmdName: string,
+  user: User,
+  ...args: string[]
+) {
   console.log(`Feeds followed by ${user.name}:`);
   let followedFeeds = await getFeedFollowsForUser(user.id);
   if (!followedFeeds) {
