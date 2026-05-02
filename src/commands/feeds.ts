@@ -30,7 +30,7 @@ export async function handlerAgg(cmdName: string, ...args: string[]) {
 
   await new Promise<void>((resolve) => {
     process.on("SIGINT", () => {
-      console.log("Shutting down feed aggregator...");
+      console.log("\nShutting down feed aggregator...");
       clearInterval(interval);
       resolve();
     });
